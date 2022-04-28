@@ -24,8 +24,8 @@ int main() {
       scanf("%u%[0-9]",&nombreBille);
       if(!testerSaisieNumerique(nombreBille,MIN_NB_BILLE,MAX_NB_BILLE)){
          printf("Saisie incorrecte. Veuillez SVP recommencer.\n");
-         fflush(stdin);
       }
+      fflush(stdin);
    }while(!testerSaisieNumerique(nombreBille,MIN_NB_BILLE,MAX_NB_BILLE));
 
    do{
@@ -33,9 +33,12 @@ int main() {
       scanf("%u%[0-9]",&nombreEtage);
       if(!testerSaisieNumerique(nombreEtage,MIN_NB_ETAGE,MAX_NB_ETAGE)){
          printf("Saisie incorrecte. Veuillez SVP recommencer.\n");
-         fflush(stdin);
       }
+      fflush(stdin);
    }while(!testerSaisieNumerique(nombreEtage,MIN_NB_ETAGE,MAX_NB_ETAGE));
+
+   printf("Nombre bille : %u \n",nombreBille);
+   printf("Nombre etage : %u",nombreEtage);
 
 
    return 0;
