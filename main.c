@@ -13,7 +13,7 @@ Compilateur : Mingw-w64 g++ 11.2.0
 #include <time.h>
 #include <assert.h>
 
-#define  BUFFER_SIZE  10 * sizeof(char)
+#define  TAILLE_BUFFER  512 * sizeof(char)
 
 const unsigned int MIN_NB_BILLE = 1000;
 const unsigned int MAX_NB_BILLE = 30000;
@@ -21,8 +21,9 @@ const unsigned int MIN_NB_ETAGE = 10;
 const unsigned int MAX_NB_ETAGE = 20;
 const unsigned TAILLE_HISTO = 15;
 
-bool testerSaisieNumerique(unsigned int valeur, char *buffer1, char *buffer2,
-									unsigned int min, unsigned int max);
+bool testerSaisieNumerique(const unsigned int valeur, const char *buffer1, const
+                           char *buffer2, const unsigned int min,
+                           const unsigned int max);
 
 unsigned valeurMax(unsigned **compteurs, const unsigned rangee);
 unsigned longueurNumerique(unsigned n);
@@ -47,53 +48,49 @@ int main() {
 
 
 
-	char *buffer_string_entree = (char *) malloc(BUFFER_SIZE);
-	char *buffer_entier_entree = (char *) malloc(BUFFER_SIZE);
+	char *tamponChaineEntree = (char *) malloc(TAILLE_BUFFER);
+	char *tamponEntierEntree = (char *) malloc(TAILLE_BUFFER);
 
 	char test[4] = "1000";
 	do {
 		printf("Entrez le nombre de billes [1000 - 30000] : ");
 
-		scanf("%s", buffer_string_entree);
-		sscanf(buffer_string_entree, "%u", &nombreBille);
-		sprintf(buffer_entier_entree, "%u", nombreBille);
+		scanf("%s", tamponChaineEntree);
+		sscanf(tamponChaineEntree, "%u", &nombreBille);
+		sprintf(tamponEntierEntree, "%u", nombreBille);
 
-		if (!testerSaisieNumerique(nombreBille, buffer_string_entree,
-											buffer_entier_entree, MIN_NB_BILLE,
-											MAX_NB_BILLE)) {
+		if (!testerSaisieNumerique(nombreBille, tamponChaineEntree,tamponEntierEntree,
+                                 MIN_NB_BILLE,MAX_NB_BILLE)) {
 			printf("Saisie incorrecte. Veuillez SVP recommencer.\n");
 		}
-	} while (!testerSaisieNumerique(nombreBille, buffer_entier_entree,
-											  buffer_string_entree, MIN_NB_BILLE,
+	} while (!testerSaisieNumerique(nombreBille, tamponEntierEntree,
+                                   tamponChaineEntree, MIN_NB_BILLE,
 											  MAX_NB_BILLE));
-	printf("Nombre bille : %u \n", nombreBille);
 
-	memset(buffer_string_entree, 0, BUFFER_SIZE);
-	memset(buffer_entier_entree, 0, BUFFER_SIZE);
-
+	memset(tamponChaineEntree, 0, TAILLE_BUFFER);
+	memset(tamponEntierEntree, 0, TAILLE_BUFFER);
 
 	do {
 		printf("Entrez le nombre de rangees de compteurs [10-20] : ");
 
-		scanf("%s", buffer_string_entree);
-		sscanf(buffer_string_entree, "%u", &nombreEtage);
-		sprintf(buffer_entier_entree, "%u", nombreEtage);
-		if (!testerSaisieNumerique(nombreEtage, buffer_string_entree,
-											buffer_entier_entree, MIN_NB_ETAGE,
+		scanf("%s", tamponChaineEntree);
+		sscanf(tamponChaineEntree, "%u", &nombreEtage);
+		sprintf(tamponEntierEntree, "%u", nombreEtage);
+		if (!testerSaisieNumerique(nombreEtage, tamponChaineEntree,
+                                 tamponEntierEntree, MIN_NB_ETAGE,
 											MAX_NB_ETAGE)) {
 			printf("Saisie incorrecte. Veuillez SVP recommencer.\n");
 		}
-	} while (!testerSaisieNumerique(nombreEtage, buffer_string_entree,
-											  buffer_entier_entree,
+	} while (!testerSaisieNumerique(nombreEtage, tamponChaineEntree,
+                                   tamponEntierEntree,
 											  MIN_NB_ETAGE, MAX_NB_ETAGE));
 
-	printf("Nombre etage : %u\n", nombreEtage);
 
 	//libération de la mémoire
-	free(buffer_string_entree);
-	free(buffer_entier_entree);
-	buffer_string_entree = NULL;
-	buffer_entier_entree = NULL;
+	free(tamponChaineEntree);
+	free(tamponEntierEntree);
+   tamponChaineEntree = NULL;
+   tamponEntierEntree = NULL;
 
 	//marquer en conversion explicite ?
 	++nombreEtage;
@@ -116,7 +113,9 @@ int main() {
 	return EXIT_SUCCESS;
 }
 
-bool testerSaisieNumerique(const unsigned int valeur, char *buffer1, char *buffer2,
+bool testerSaisieNumerique(const unsigned int valeur, const char *buffer1, const
+char
+*buffer2,
 									const unsigned int min, const unsigned int max) {
 	if (valeur > max || valeur < min || strcmp(buffer1, buffer2) != 0) {
 		return false;
