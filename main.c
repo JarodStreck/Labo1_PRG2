@@ -19,9 +19,24 @@ const unsigned int MIN_NB_BILLE = 1000;
 const unsigned int MAX_NB_BILLE = 30000;
 const unsigned int MIN_NB_ETAGE = 10;
 const unsigned int MAX_NB_ETAGE = 20;
+const unsigned TAILLE_HISTO = 15;
 
 bool testerSaisieNumerique(unsigned int valeur, char *buffer1, char *buffer2,
 									unsigned int min, unsigned int max);
+
+unsigned valeurMax(unsigned **compteurs, const unsigned rangee);
+unsigned longueurNumerique(unsigned n);
+unsigned** allocationPlanche(unsigned nbreRangees);
+void libererMemoirePlanche(unsigned **planche, unsigned nbreRangees);
+unsigned* allouerHistogramme(unsigned **compteurs, const unsigned rangee, unsigned
+max);
+void afficherHistogramme(unsigned *histogramme, unsigned rangee, unsigned
+nombreChiffre);
+void afficherCompteurs(unsigned **compteurs, const unsigned rangee, unsigned
+nombreChiffres);
+
+
+
 void plancheGalton(unsigned int *tab, unsigned nombreBille, unsigned int
 nombreEtage);
 void afficher(const unsigned int* adr, size_t n);
@@ -98,7 +113,6 @@ int main() {
 		exit(EXIT_FAILURE);
 	}
 
-
 	return EXIT_SUCCESS;
 }
 
@@ -137,4 +151,93 @@ void afficher(const unsigned int* adr, size_t n) {
 		printf("%d", *(adr + i));
 	}
 	printf("]\n");
+}
+
+unsigned** allocationPlanche(unsigned nbreRangees) {
+
+   unsigned **planche = (unsigned **) calloc(nbreRangees, sizeof(unsigned **));
+   assert(planche != NULL);
+
+   for (unsigned i = 0; i < nbreRangees; ++i) {
+      planche[i] = (unsigned *) calloc(i + 1, sizeof(unsigned *));
+
+      assert(planche[i] != NULL);
+   }
+
+   return planche;
+}
+
+void libererMemoirePlanche(unsigned **planche, unsigned nbreRangees) {
+
+   assert(planche != NULL);
+
+   for (unsigned i = 0; i < nbreRangees; ++i) {
+      assert(planche[i] != NULL);
+      free(planche[i]);
+      planche[i] = NULL;
+   }
+
+   free(planche);
+   planche = NULL;
+}
+
+unsigned valeurMax(unsigned **compteurs, const unsigned rangee) {
+   unsigned max = *(*(compteurs + rangee - 1));
+
+   for (unsigned i = 0; i < rangee; ++i) {
+      if (*(*(compteurs + rangee - 1) + i) > max)
+         max = *(*(compteurs + rangee - 1) + i);
+   }
+   return max;
+}
+
+unsigned* allouerHistogramme(unsigned **compteurs, const unsigned rangee, unsigned
+max) {
+   unsigned *histogramme;
+
+   histogramme = (unsigned *) calloc(rangee, sizeof(unsigned));
+
+   for (unsigned i = 0; i < rangee; ++i) {
+      *(histogramme + i) = (unsigned) (TAILLE_HISTO * (double) (*(*(compteurs + rangee - 1) + i)) / max);
+   }
+   return histogramme;
+}
+
+void afficherHistogramme(unsigned *histogramme, unsigned rangee, unsigned nombreChiffre) {
+   for (unsigned i = TAILLE_HISTO; i > 0; --i) {
+      for (unsigned j = 0; j < rangee; ++j) {
+         if (i <= *(histogramme + j))
+            printf("%*c", nombreChiffre, '*');
+         else
+            printf("%*c", nombreChiffre, ' ');
+      }
+      printf("\n");
+   }
+}
+
+unsigned longueurNumerique(unsigned n) {
+   unsigned i = 0;
+
+   while (n != 0) {
+      n /= 10;
+      i++;
+   }
+   return i;
+}
+
+void afficherCompteurs(unsigned **compteurs, const unsigned rangee, unsigned nombreChiffres) {
+
+
+   unsigned decrement = nombreChiffres / 2;
+   unsigned espace = nombreChiffres * rangee / 2 - (decrement + nombreChiffres % 2);
+
+   for (unsigned i = 0; i < rangee; i++) {
+      printf("%*s", espace, "");
+
+      for (unsigned j = 0; j <= i; j++) {
+         printf("% *u", nombreChiffres, *(*(compteurs + i) + j));
+      }
+      espace -= decrement + (nombreChiffres % 2 && i % 2);
+      printf("\n");
+   }
 }
