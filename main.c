@@ -4,10 +4,22 @@
  Auteur(s)      : J. Streckeisen, A. Martins, G. Courbat
  Date creation  : 26.04.2022
 
- Description    : Ce programme permet de simuler une planche de Galton. C'est à dire
- 						comptabiliser
+ Description    : Ce programme permet de simuler une planche de Galton. On compte
+                  combien de billes sont arrivées dans chaque récipient, ainsi
+                  que combien d'entre elles sont passées à gauche ou à droite de
+                  chaque clou. Finalement, on affiche un histogramme dont la
+                  taille maximum est de 15 étoiles pour représenter la
+                  distribution des billes. Au début du programme, la saisie est
+                  contrôlée pour pouvoir rentrer uniquement des valeurs numériques.
+                  Le programme se termine en affichant les deux affichages cités
+                  ci-dessus.
 
- Remarque(s)    : <� compl�ter>
+ Remarque(s)    : - Toutes les saisies doivent être contrôlées et l'utilisateur sera
+                    réinvité à refaire sa saisie.
+                  - Le programme contient 2 affichages : L'affichage des valeurs
+                    des divers compteurs et l'affichage d'un histogramme
+                    correspondant à la distribution finale des billes dans les
+                    récipients finaux.
 
  Compilateur    : Mingw-w64 gcc 11.2.0
  -----------------------------------------------------------------------------------
@@ -18,220 +30,267 @@
 #include <string.h>
 #include <time.h>
 #include <assert.h>
+#include <math.h>
 
 const char MESSAGE_ERREUR[] = "Saisie incorrecte. Veuillez SVP recommencer.";
-const char MESSAGE_ENTREE_BILLE[] ="Entrez le nombre de billes [1000 - 30000] : ";
-const char MESSAGE_ENTREE_ETAGE[] = "Entrez le nombre de rangees de compteurs "
-                                  "[10-20] : ";
+const char MESSAGE_ENTREE_BILLES[] = "Entrez le nombre de billes [1000 - 30000] : ";
+const char MESSAGE_ENTREE_ETAGES[] = "Entrez le nombre de rangees de compteurs "
+                                     "[10-20] : ";
+const char CARACTERE_HISTOGRAMME = '*';
+const char CARACTERE_ESPACEMENT = ' ';
 
-const unsigned int NOMBRE_ELEMENT = 512;
-const unsigned int TAILLE_ELEMENT = sizeof(char);
-const unsigned int TAILLE_BUFFER = NOMBRE_ELEMENT * TAILLE_ELEMENT;
+const unsigned NOMBRE_ELEMENTS = 512;
+const unsigned TAILLE_ELEMENT = sizeof(char);
+const unsigned TAILLE_TAMPON = NOMBRE_ELEMENTS * TAILLE_ELEMENT;
 
-const unsigned int MIN_NB_BILLE = 1000;
-const unsigned int MAX_NB_BILLE = 30000;
-const unsigned int MIN_NB_ETAGE = 10;
-const unsigned int MAX_NB_ETAGE = 20;
-const unsigned TAILLE_HISTO = 15;
+const unsigned MIN_NB_BILLES = 1000;
+const unsigned MAX_NB_BILLES = 30000;
+const unsigned MIN_NB_ETAGES = 10;
+const unsigned MAX_NB_ETAGES = 20;
+const unsigned TAILLE_MAX_HISTOGRAMME = 15;
 
-bool testerSaisieNumerique(const unsigned int valeur, const char *buffer1, const
-char *buffer2, const unsigned int min, const unsigned int max);
 
-void saisieUtilisateur(unsigned* valeur,const unsigned min,const unsigned max,
-                       const char* messageEntre,const char*
-messageErreur,char* tamponChaineEntree,char* tamponEntierEntree);
+bool testerSaisieNumerique(const unsigned valeurATester, const char *tampon1,
+                           const char *tampon2, const unsigned borneMin, const
+                           unsigned borneMax);
 
-unsigned valeurMax(const unsigned *tab, const unsigned rangee, size_t taille);
+void saisieUtilisateur(unsigned *valeur, const unsigned min, const unsigned max,
+                       const char *messageEntre, const char *messageErreur, char
+                       *tamponChaineEntree, char *tamponEntierEntree);
+
+unsigned valeurMax(const unsigned *tab, const unsigned nbreRangees, size_t taille);
 
 unsigned longueurNumerique(unsigned valeur);
 
-unsigned *allouerHistogramme(const unsigned *tableau, unsigned rangee,
-unsigned max, size_t taille);
+unsigned *plancheGalton(unsigned nombreBilles, unsigned nombreEtages, const size_t
+taille);
 
-void afficherHistogramme(const unsigned *histogramme, unsigned rangee,
-								 unsigned nombreChiffre);
+void afficherPlanche(const unsigned *planche, unsigned nombreEtages,
+                     unsigned tailleColonne);
 
+unsigned *allouerHistogramme(const unsigned *planche, unsigned nbreRangees,
+                             unsigned max, size_t taille);
 
-unsigned int *plancheGalton(unsigned nombreBille, unsigned int
-nombreEtage, const size_t taille);
+void afficherHistogramme(const unsigned *histogramme, unsigned nbreRangees,
+                         unsigned tailleColonne);
 
-void afficherPlanche(const unsigned *tab, unsigned nombreEtage,
-							unsigned tailleChiffre);
+int main(void) {
 
+   unsigned nombreBilles = 0;
+   unsigned nombreEtages = 0;
 
-int main() {
-	unsigned int nombreBille = 0;
-	unsigned int nombreEtage = 0;
+   // Allocation de deux zones mémoires qui servira à stocker les entrées
+   // utilisateurs
+   char *tamponChaineEntree = (char *) calloc(NOMBRE_ELEMENTS, TAILLE_ELEMENT);
+   char *tamponEntierEntree = (char *) calloc(NOMBRE_ELEMENTS, TAILLE_ELEMENT);
 
-	//Allocation de deux zones mémoires qui servira a stocker les entrées utilisateurs
-	char *tamponChaineEntree = (char *) calloc(NOMBRE_ELEMENT, TAILLE_ELEMENT);
-	char *tamponEntierEntree = (char *) calloc(NOMBRE_ELEMENT, TAILLE_ELEMENT);
+   // On vérifie que la mémoire a bien été allouée
+   assert(tamponChaineEntree != NULL);
+   assert(tamponEntierEntree != NULL);
 
-	//On vérifie que la mémoire a bien été allouée
-	assert(tamponChaineEntree != NULL);
-	assert(tamponEntierEntree != NULL);
+   // Saisie du nombre de billes
+   saisieUtilisateur(&nombreBilles, MIN_NB_BILLES, MAX_NB_BILLES,
+                     MESSAGE_ENTREE_BILLES,
+                     MESSAGE_ERREUR, tamponChaineEntree, tamponEntierEntree);
 
-   //Saisie du nombre de bille
-   saisieUtilisateur(&nombreBille,MIN_NB_BILLE,MAX_NB_BILLE,MESSAGE_ENTREE_BILLE,
-                     MESSAGE_ERREUR,tamponChaineEntree,tamponEntierEntree);
+   // On met à 0 tous les bits des deux zones tampons pour les réutiliser
+   memset(tamponChaineEntree, 0, TAILLE_TAMPON);
+   memset(tamponEntierEntree, 0, TAILLE_TAMPON);
 
-	//On met à 0 tous les bits des deux zones tampons pour les réutiliser
-	memset(tamponChaineEntree, 0, TAILLE_BUFFER);
-	memset(tamponEntierEntree, 0, TAILLE_BUFFER);
+   // Saisie du nombre d'étages
+   saisieUtilisateur(&nombreEtages, MIN_NB_ETAGES, MAX_NB_ETAGES,
+                     MESSAGE_ENTREE_ETAGES,
+                     MESSAGE_ERREUR, tamponChaineEntree, tamponEntierEntree);
 
-   //Saisie du nombre d'étage
-   saisieUtilisateur(&nombreEtage,MIN_NB_ETAGE,MAX_NB_ETAGE,MESSAGE_ENTREE_ETAGE,
-                     MESSAGE_ERREUR,tamponChaineEntree,tamponEntierEntree);
-
-   //libération de la mémoire
-	free(tamponChaineEntree);
-	free(tamponEntierEntree);
-	tamponChaineEntree = NULL;
-	tamponEntierEntree = NULL;
-
-
-	const size_t taille = (nombreEtage + 1) * nombreEtage / 2;
-
-
-	srand(time(NULL));
-
-	unsigned int *planche = plancheGalton(nombreBille, nombreEtage, taille);
-	printf("\n");
-
-	afficherPlanche(planche, nombreEtage, longueurNumerique(nombreBille) + 1);
-	//printf("%u\n", valeurMax(tableau,nombreEtage,taille));
-	unsigned int *histogramme =
-		allouerHistogramme(planche, nombreEtage,
-								 valeurMax(planche,nombreEtage, taille), taille);
-	afficherHistogramme(histogramme, nombreEtage, longueurNumerique(nombreBille)
-																 + 1);
-	free(histogramme);
-	histogramme = NULL;
-	free(planche);
-	planche = NULL;
+   // Libération de la mémoire
+   free(tamponChaineEntree);
+   free(tamponEntierEntree);
+   tamponChaineEntree = NULL;
+   tamponEntierEntree = NULL;
 
 
-	return EXIT_SUCCESS;
+   size_t taille = (nombreEtages + 1) * nombreEtages / 2;
+
+   srand(time(NULL));
+
+   //Nombre de digits + 1 caractère pour l'espace
+   unsigned tailleColonne = longueurNumerique(nombreBilles) + 1;
+
+   // Allocation, puis simulation de la planche de Galton
+   unsigned *planche = plancheGalton(nombreBilles, nombreEtages, taille);
+   afficherPlanche(planche, nombreEtages, tailleColonne);
+
+
+   unsigned *histogramme = allouerHistogramme(planche, nombreEtages,
+                                              valeurMax(planche, nombreEtages,
+                                                        taille), taille);
+   afficherHistogramme(histogramme, nombreEtages, tailleColonne);
+
+   free(histogramme);
+   histogramme = NULL;
+
+   free(planche);
+   planche = NULL;
+
+   return EXIT_SUCCESS;
 }
-void saisieUtilisateur(unsigned* valeur,const unsigned min,const unsigned max,const
-char messageEntre[],const char
-      messageErreur[],char* tamponChaineEntree,char* tamponEntierEntree){
+
+// But : Tester qu'une saisie utilisateur est bien une valeurATester numérique valide
+bool testerSaisieNumerique(const unsigned valeurATester, const char *tampon1, const
+char *tampon2, const unsigned borneMin, const unsigned borneMax) {
+
+   if (valeurATester > borneMax || valeurATester < borneMin ||
+       strcmp(tampon1,tampon2) != 0) {
+      return false;
+   }
+
+   return true;
+}
+
+// But : Permet de lire une saisie utilisateur
+void saisieUtilisateur(unsigned *valeur, const unsigned min, const unsigned max,
+                       const char messageEntre[], const char messageErreur[], char
+                       *tamponChaineEntree, char *tamponEntierEntree) {
    do {
-      printf("%s",messageEntre);
+      printf("%s", messageEntre);
       scanf("%s", tamponChaineEntree);
 
       sscanf(tamponChaineEntree, "%u", valeur);
       sprintf(tamponEntierEntree, "%u", *valeur);
 
-      if (!testerSaisieNumerique(*valeur, tamponChaineEntree,tamponEntierEntree, min,
+      if (!testerSaisieNumerique(*valeur, tamponChaineEntree, tamponEntierEntree,
+                                 min,
                                  max)) {
-         printf("%s\n",messageErreur);
+         printf("%s\n", messageErreur);
       }
    } while (!testerSaisieNumerique(*valeur, tamponChaineEntree,
                                    tamponEntierEntree,
                                    min, max));
 }
-bool testerSaisieNumerique(const unsigned int valeur, const char *buffer1, const
-char *buffer2, const unsigned int min, const unsigned int max) {
-	if (valeur > max || valeur < min || strcmp(buffer1, buffer2) != 0) {
-		return false;
-	}
-	return true;
+
+// But : Récupère la plus grande valeur présente dans la dernière ligne de la planche
+unsigned valeurMax(const unsigned *tab, const unsigned nbreRangees, const size_t
+taille) {
+
+   assert(tab != NULL);
+
+   unsigned indice = taille - nbreRangees;
+   unsigned max = *(tab + indice);
+
+   for (unsigned i = 0; i < nbreRangees; ++i) {
+      if (*(tab + indice + i) > max) {
+         max = *(tab + indice + i);
+      }
+   }
+
+   return max;
 }
 
-unsigned int* plancheGalton(unsigned int nombreBille,
-						 unsigned int nombreEtage, const size_t taille) {
-
-	assert(taille > 0);
-	unsigned int *planche = (unsigned int *) calloc(taille,
-																	sizeof(unsigned int));
-	if(planche) {
-		planche[0] = nombreBille;
-		size_t indice = 0;
-
-		for (size_t k = 0; k < nombreBille; ++k) {
-			for (size_t l = 1; l < nombreEtage; ++l) {
-				//50% de chance de sortir un 1 ou 0
-				indice += l + (rand() & 1);
-				planche[indice] += 1;
-			}
-			indice = 0;
-		}
-
-		return planche;
-	} else{
-
-		return NULL;
-	}
-}
-
-void afficherPlanche(const unsigned *tab, const unsigned nombreEtage, const
-unsigned tailleChiffre) {
-
-	unsigned int decrement = tailleChiffre / 2;
-	unsigned int espace =
-		tailleChiffre * nombreEtage / 2 - (decrement + tailleChiffre % 2);
-	unsigned int indice = 0;
-
-	for (size_t k = 0; k < nombreEtage; ++k) {
-		printf("%*s", espace, "");
-		indice += k;
-
-		for (size_t l = indice; l <= indice + k; ++l) {
-			printf("%*u", tailleChiffre, *(tab + l));
-		}
-
-		espace -= decrement + (tailleChiffre % 2 && k % 2);
-		printf("\n");
-	}
-}
-
-
-unsigned valeurMax(const unsigned *tab, const unsigned rangee, const size_t taille) {
-	unsigned indice = taille - rangee;
-	unsigned max = *(tab + indice);
-
-	for (size_t k = 0; k < rangee; ++k) {
-		if (*(tab + indice + k) > max) {
-			max = *(tab + indice + k);
-		}
-	}
-	return max;
-}
-
-
-unsigned *allouerHistogramme(const unsigned *tableau, const unsigned rangee,
-const unsigned max, const size_t taille) {
-
-	unsigned *histogramme = (unsigned *) calloc(rangee, sizeof(unsigned));
-	//if(histo)....
-	unsigned indice = taille - rangee;
-	for (unsigned i = 0; i < rangee; ++i) {
-		*(histogramme + i) = (unsigned) (TAILLE_HISTO *
-													(double) *(tableau + indice + i) / max);
-	}
-	return histogramme;
-}
-
-void afficherHistogramme(const unsigned *histogramme, const unsigned rangee,
-								const unsigned nombreChiffre) {
-	for (unsigned i = TAILLE_HISTO; i > 0; --i) {
-		for (unsigned j = 0; j < rangee; ++j) {
-			if (i <= *(histogramme + j))
-				printf("%*c", nombreChiffre, '*');
-			else
-				printf("%*c", nombreChiffre, ' ');
-		}
-		printf("\n");
-	}
-}
-
+// But : Récupérer le nombre de chiffres dans un nombre
 unsigned longueurNumerique(unsigned valeur) {
-	unsigned i = 0;
 
-	while (valeur != 0) {
-		valeur /= 10;
-		i++;
-	}
-	return i;
+   unsigned i = 0;
+
+   while (valeur != 0) {
+      valeur /= 10;
+      i++;
+   }
+   return i;
 }
+
+unsigned *plancheGalton(unsigned nombreBilles, unsigned nombreEtages, const size_t
+taille) {
+
+   assert(taille > 0);
+
+   unsigned *planche = (unsigned *) calloc(taille,
+                                           sizeof(unsigned));
+   assert(planche != NULL);
+
+   planche[0] = nombreBilles;
+   size_t indice = 0;
+
+   for (unsigned i = 0; i < nombreBilles; ++i) {
+      for (unsigned j = 1; j < nombreEtages; ++j) {
+         //50% de chance de sortir un 1 ou 0
+         indice += j + (rand() & 1);
+         planche[indice] += 1;
+      }
+      indice = 0;
+   }
+
+   return planche;
+}
+
+void afficherPlanche(const unsigned *planche, const unsigned nombreEtages, const
+unsigned tailleColonne) {
+
+   assert(planche != NULL);
+
+   //Nombre d'espaces à retirer à chaque étage
+   unsigned decrement = tailleColonne / 2;
+
+   //Espaces à afficher à chaque étage
+   unsigned nbreEspaces = tailleColonne * nombreEtages / 2 - (decrement + tailleColonne
+                                                                          % 2);
+   unsigned indice = 0;
+
+   printf("\n");
+   for (unsigned i = 0; i < nombreEtages; ++i) {
+
+      printf("%*s", nbreEspaces, "");
+      indice += i;
+      for (unsigned j = indice; j <= indice + i; ++j) {
+         printf("%*u", tailleColonne, *(planche + j));
+      }
+
+      /* Réduit le nombre d'espaces à afficher à la prochaine ligne. L'expression
+       * booléenne permet de calculer s'il faut ou non enlever une espace
+       * supplémentaire pour les lignes impaires dans une pyramide avec des
+       * rangées de taille paire.
+       */
+      nbreEspaces -= decrement + (tailleColonne % 2 && i % 2);
+      printf("\n");
+   }
+   printf("\n");
+}
+
+/*
+ * But : Création d'un tableau contenant le nombre d'étoiles par rangée dans
+ *       l'histogramme
+ */
+unsigned *allouerHistogramme(const unsigned *planche, const unsigned nbreRangees,
+                             const unsigned max, const size_t taille) {
+
+   assert(planche != NULL);
+
+   unsigned *histogramme = (unsigned *) calloc(nbreRangees, sizeof(unsigned));
+
+   assert(histogramme != NULL);
+
+   unsigned indice = taille - nbreRangees;
+   for (unsigned i = 0; i < nbreRangees; ++i) {
+      *(histogramme + i) = (unsigned) round(TAILLE_MAX_HISTOGRAMME *
+                                            (double) *(planche + indice + i) / max);
+   }
+
+   return histogramme;
+}
+
+void afficherHistogramme(const unsigned *histogramme, const unsigned nbreRangees,
+                         const unsigned tailleColonne) {
+
+   assert(histogramme != NULL);
+
+   for (unsigned i = TAILLE_MAX_HISTOGRAMME; i > 0; --i) {
+      for (unsigned j = 0; j < nbreRangees; ++j) {
+         if (i <= *(histogramme + j))
+            printf("%*c", tailleColonne, CARACTERE_HISTOGRAMME);
+         else
+            printf("%*c", tailleColonne, CARACTERE_ESPACEMENT);
+      }
+      printf("\n");
+   }
+}
+
+
