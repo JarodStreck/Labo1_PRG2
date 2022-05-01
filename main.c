@@ -78,7 +78,7 @@ int main() {
 	//On met à 0 tous les bits des deux zones tampons pour les réutiliser
 	memset(tamponChaineEntree, 0, TAILLE_BUFFER);
 	memset(tamponEntierEntree, 0, TAILLE_BUFFER);
-   
+
    //Saisie du nombre d'étage
    saisieUtilisateur(&nombreEtage,MIN_NB_ETAGE,MAX_NB_ETAGE,MESSAGE_ENTREE_ETAGE,
                      MESSAGE_ERREUR,tamponChaineEntree,tamponEntierEntree);
@@ -130,7 +130,7 @@ char messageEntre[],const char
    } while (!testerSaisieNumerique(*valeur, tamponChaineEntree,
                                    tamponEntierEntree,
                                    min, max));
-};
+}
 bool testerSaisieNumerique(const unsigned int valeur, const char *buffer1, const
 char *buffer2, const unsigned int min, const unsigned int max) {
 	if (valeur > max || valeur < min || strcmp(buffer1, buffer2) != 0) {
