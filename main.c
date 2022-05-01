@@ -19,6 +19,11 @@
 #include <time.h>
 #include <assert.h>
 
+const char MESSAGE_ERREUR[] = "Saisie incorrecte. Veuillez SVP recommencer.";
+const char MESSAGE_ENTREE_BILLE[] ="Entrez le nombre de billes [1000 - 30000] : ";
+const char MESSAGE_ENTREE_ETAGE[] = "Entrez le nombre de rangees de compteurs "
+                                  "[10-20] : ";
+
 const unsigned int NOMBRE_ELEMENT = 512;
 const unsigned int TAILLE_ELEMENT = sizeof(char);
 const unsigned int TAILLE_BUFFER = NOMBRE_ELEMENT * TAILLE_ELEMENT;
@@ -31,6 +36,10 @@ const unsigned TAILLE_HISTO = 15;
 
 bool testerSaisieNumerique(const unsigned int valeur, const char *buffer1, const
 char *buffer2, const unsigned int min, const unsigned int max);
+
+void saisieUtilisateur(unsigned* valeur,const unsigned min,const unsigned max,
+                       const char* messageEntre,const char*
+messageErreur,char* tamponChaineEntree,char* tamponEntierEntree);
 
 unsigned valeurMax(const unsigned *tab, const unsigned rangee, size_t taille);
 
@@ -61,47 +70,22 @@ int main() {
 	//On vérifie que la mémoire a bien été allouée
 	assert(tamponChaineEntree != NULL);
 	assert(tamponEntierEntree != NULL);
-	//On test que l'entrée utilisateur soit correct
-	do {
-		printf("Entrez le nombre de billes [1000 - 30000] : ");
-		//On enregistre l'entré utilisateur en tant que string dans une zone tampon,
-		// on extrait ensuite un entier et on le convertis en string et on le met dans
-		// la seconde zone tampon.
-		scanf("%s", tamponChaineEntree);
-		sscanf(tamponChaineEntree, "%u", &nombreBille);
-		sprintf(tamponEntierEntree, "%u", nombreBille);
-		//On vérifie que l'entré est correct
-		if (!testerSaisieNumerique(nombreBille, tamponChaineEntree, tamponEntierEntree,
-											MIN_NB_BILLE, MAX_NB_BILLE)) {
-			printf("Saisie incorrecte. Veuillez SVP recommencer.\n");
-		}
-	} while (!testerSaisieNumerique(nombreBille, tamponEntierEntree,
-											  tamponChaineEntree, MIN_NB_BILLE,
-											  MAX_NB_BILLE));
+
+   //Saisie du nombre de bille
+   saisieUtilisateur(&nombreBille,MIN_NB_BILLE,MAX_NB_BILLE,MESSAGE_ENTREE_BILLE,
+                     MESSAGE_ERREUR,tamponChaineEntree,tamponEntierEntree);
+
 	//On met à 0 tous les bits des deux zones tampons pour les réutiliser
 	memset(tamponChaineEntree, 0, TAILLE_BUFFER);
 	memset(tamponEntierEntree, 0, TAILLE_BUFFER);
+   
+   //Saisie du nombre d'étage
+   saisieUtilisateur(&nombreEtage,MIN_NB_ETAGE,MAX_NB_ETAGE,MESSAGE_ENTREE_ETAGE,
+                     MESSAGE_ERREUR,tamponChaineEntree,tamponEntierEntree);
 
-	do {
-		printf("Entrez le nombre de rangees de compteurs [10-20] : ");
-
-		scanf("%s", tamponChaineEntree);
-		sscanf(tamponChaineEntree, "%u", &nombreEtage);
-		sprintf(tamponEntierEntree, "%u", nombreEtage);
-		if (!testerSaisieNumerique(nombreEtage, tamponChaineEntree,
-											tamponEntierEntree, MIN_NB_ETAGE,
-											MAX_NB_ETAGE)) {
-			printf("Saisie incorrecte. Veuillez SVP recommencer.\n");
-		}
-	} while (!testerSaisieNumerique(nombreEtage, tamponChaineEntree,
-											  tamponEntierEntree,
-											  MIN_NB_ETAGE, MAX_NB_ETAGE));
-
-
-	//libération de la mémoire
+   //libération de la mémoire
 	free(tamponChaineEntree);
 	free(tamponEntierEntree);
-
 	tamponChaineEntree = NULL;
 	tamponEntierEntree = NULL;
 
@@ -129,7 +113,24 @@ int main() {
 
 	return EXIT_SUCCESS;
 }
+void saisieUtilisateur(unsigned* valeur,const unsigned min,const unsigned max,const
+char messageEntre[],const char
+      messageErreur[],char* tamponChaineEntree,char* tamponEntierEntree){
+   do {
+      printf("%s",messageEntre);
+      scanf("%s", tamponChaineEntree);
 
+      sscanf(tamponChaineEntree, "%u", valeur);
+      sprintf(tamponEntierEntree, "%u", *valeur);
+
+      if (!testerSaisieNumerique(*valeur, tamponChaineEntree,tamponEntierEntree, min,
+                                 max)) {
+         printf("%s\n",messageErreur);
+      }
+   } while (!testerSaisieNumerique(*valeur, tamponChaineEntree,
+                                   tamponEntierEntree,
+                                   min, max));
+};
 bool testerSaisieNumerique(const unsigned int valeur, const char *buffer1, const
 char *buffer2, const unsigned int min, const unsigned int max) {
 	if (valeur > max || valeur < min || strcmp(buffer1, buffer2) != 0) {
