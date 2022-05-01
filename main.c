@@ -1,11 +1,17 @@
-/*-----------------------------------------------------------------------------------
-Nom de fichier : main.cpp
-Auteur : G. Courbat, J. Streckeisen, A. Martins
-Date de création : 26.04.2022
-Description :
-Remarque :
-Compilateur : Mingw-w64 g++ 11.2.0
------------------------------------------------------------------------------------*/
+/*
+ -----------------------------------------------------------------------------------
+ Nom du fichier : main.c
+ Auteur(s)      : J. Streckeisen, A. Martins, G. Courbat
+ Date creation  : 26.04.2022
+
+ Description    : Ce programme permet de simuler une planche de Galton. C'est à dire
+ 						comptabiliser
+
+ Remarque(s)    : <� compl�ter>
+
+ Compilateur    : Mingw-w64 gcc 11.2.0
+ -----------------------------------------------------------------------------------
+*/
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
@@ -23,23 +29,22 @@ const unsigned int MIN_NB_ETAGE = 10;
 const unsigned int MAX_NB_ETAGE = 20;
 const unsigned TAILLE_HISTO = 15;
 
-bool testerSaisieNumerique(unsigned int valeur, const char *buffer1, const
-char *buffer2, unsigned int min,
-									unsigned int max);
+bool testerSaisieNumerique(const unsigned int valeur, const char *buffer1, const
+char *buffer2, const unsigned int min, const unsigned int max);
 
-unsigned valeurMax(const unsigned *tab, unsigned rangee, size_t taille);
+unsigned valeurMax(const unsigned *tab, const unsigned rangee, size_t taille);
 
-unsigned longueurNumerique(unsigned n);
+unsigned longueurNumerique(unsigned valeur);
 
-unsigned *allouerHistogramme(const unsigned *tableau, unsigned rangee, unsigned
-max, size_t taille);
+unsigned *allouerHistogramme(const unsigned *tableau, unsigned rangee,
+unsigned max, size_t taille);
 
-void afficherHistogramme(const unsigned *histogramme, unsigned rangee, unsigned
-nombreChiffre);
+void afficherHistogramme(const unsigned *histogramme, unsigned rangee,
+								 unsigned nombreChiffre);
 
 
-void plancheGalton(unsigned int *tab, unsigned nombreBille, unsigned int
-nombreEtage);
+unsigned int *plancheGalton(unsigned nombreBille, unsigned int
+nombreEtage, const size_t taille);
 
 void afficherPlanche(const unsigned *tab, unsigned nombreEtage,
 							unsigned tailleChiffre);
@@ -49,7 +54,7 @@ int main() {
 	unsigned int nombreBille = 0;
 	unsigned int nombreEtage = 0;
 
-	//Allocation de deux zone mémoire qui servira a stocké les entrées utilisateur
+	//Allocation de deux zones mémoires qui servira a stocker les entrées utilisateurs
 	char *tamponChaineEntree = (char *) calloc(NOMBRE_ELEMENT, TAILLE_ELEMENT);
 	char *tamponEntierEntree = (char *) calloc(NOMBRE_ELEMENT, TAILLE_ELEMENT);
 
@@ -102,58 +107,60 @@ int main() {
 
 
 	const size_t taille = (nombreEtage + 1) * nombreEtage / 2;
-	printf("%zu", taille);
-	unsigned int *tableau = (unsigned int *) calloc(taille,
-																	sizeof(unsigned int));
-	if (tableau) {
-		srand(time(NULL));
-		plancheGalton(tableau, nombreBille, nombreEtage);
-		printf("\n");
-		afficherPlanche(tableau, nombreEtage, longueurNumerique(nombreBille) + 1);
-		//printf("%u\n", valeurMax(tableau,nombreEtage,taille));
-		unsigned int *histogramme = allouerHistogramme(tableau, nombreEtage,
-																	  valeurMax(tableau,
-																					nombreEtage, taille),
-																	  taille);
-		afficherHistogramme(histogramme, nombreEtage, longueurNumerique(nombreBille)
-																	 + 1);
-		free(histogramme);
-		histogramme = NULL;
-		free(tableau);
-		tableau = NULL;
-	} else {
-		free(tableau);
-		tableau = NULL;
-		printf("Erreur liee a l'allocation memoire...");
-		exit(EXIT_FAILURE);
-	}
+
+
+	srand(time(NULL));
+
+	unsigned int *planche = plancheGalton(nombreBille, nombreEtage, taille);
+	printf("\n");
+
+	afficherPlanche(planche, nombreEtage, longueurNumerique(nombreBille) + 1);
+	//printf("%u\n", valeurMax(tableau,nombreEtage,taille));
+	unsigned int *histogramme =
+		allouerHistogramme(planche, nombreEtage,
+								 valeurMax(planche,nombreEtage, taille), taille);
+	afficherHistogramme(histogramme, nombreEtage, longueurNumerique(nombreBille)
+																 + 1);
+	free(histogramme);
+	histogramme = NULL;
+	free(planche);
+	planche = NULL;
+
 
 	return EXIT_SUCCESS;
 }
 
 bool testerSaisieNumerique(const unsigned int valeur, const char *buffer1, const
-char
-*buffer2,
-									const unsigned int min, const unsigned int max) {
+char *buffer2, const unsigned int min, const unsigned int max) {
 	if (valeur > max || valeur < min || strcmp(buffer1, buffer2) != 0) {
 		return false;
 	}
 	return true;
 }
 
-void plancheGalton(unsigned int *tab, unsigned int nombreBille,
-						 unsigned int nombreEtage) {
+unsigned int* plancheGalton(unsigned int nombreBille,
+						 unsigned int nombreEtage, const size_t taille) {
 
-	tab[0] = nombreBille;
-	size_t indice = 0;
+	assert(taille > 0);
+	unsigned int *planche = (unsigned int *) calloc(taille,
+																	sizeof(unsigned int));
+	if(planche) {
+		planche[0] = nombreBille;
+		size_t indice = 0;
 
-	for (size_t k = 0; k < nombreBille; ++k) {
-		for (size_t l = 1; l < nombreEtage; ++l) {
-			//50% de chance de sortir un 1 ou 0
-			indice += l + (rand() & 1);
-			tab[indice] += 1;
+		for (size_t k = 0; k < nombreBille; ++k) {
+			for (size_t l = 1; l < nombreEtage; ++l) {
+				//50% de chance de sortir un 1 ou 0
+				indice += l + (rand() & 1);
+				planche[indice] += 1;
+			}
+			indice = 0;
 		}
-		indice = 0;
+
+		return planche;
+	} else{
+
+		return NULL;
 	}
 }
 
@@ -179,7 +186,7 @@ unsigned tailleChiffre) {
 }
 
 
-unsigned valeurMax(const unsigned *tab, const unsigned rangee, size_t taille) {
+unsigned valeurMax(const unsigned *tab, const unsigned rangee, const size_t taille) {
 	unsigned indice = taille - rangee;
 	unsigned max = *(tab + indice);
 
@@ -192,8 +199,8 @@ unsigned valeurMax(const unsigned *tab, const unsigned rangee, size_t taille) {
 }
 
 
-unsigned *allouerHistogramme(const unsigned *tableau, const unsigned rangee, unsigned
-max, size_t taille) {
+unsigned *allouerHistogramme(const unsigned *tableau, const unsigned rangee,
+const unsigned max, const size_t taille) {
 
 	unsigned *histogramme = (unsigned *) calloc(rangee, sizeof(unsigned));
 	//if(histo)....
@@ -205,8 +212,8 @@ max, size_t taille) {
 	return histogramme;
 }
 
-void afficherHistogramme(const unsigned *histogramme, unsigned rangee,
-								 unsigned nombreChiffre) {
+void afficherHistogramme(const unsigned *histogramme, const unsigned rangee,
+								const unsigned nombreChiffre) {
 	for (unsigned i = TAILLE_HISTO; i > 0; --i) {
 		for (unsigned j = 0; j < rangee; ++j) {
 			if (i <= *(histogramme + j))
@@ -218,11 +225,11 @@ void afficherHistogramme(const unsigned *histogramme, unsigned rangee,
 	}
 }
 
-unsigned longueurNumerique(unsigned n) {
+unsigned longueurNumerique(unsigned valeur) {
 	unsigned i = 0;
 
-	while (n != 0) {
-		n /= 10;
+	while (valeur != 0) {
+		valeur /= 10;
 		i++;
 	}
 	return i;
