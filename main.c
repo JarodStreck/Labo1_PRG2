@@ -13,7 +13,9 @@ Compilateur : Mingw-w64 g++ 11.2.0
 #include <time.h>
 #include <assert.h>
 
-#define  TAILLE_BUFFER  512 * sizeof(char)
+const unsigned int NOMBRE_ELEMENT = 512;
+const unsigned int TAILLE_ELEMENT = sizeof(char);
+const unsigned int TAILLE_BUFFER = NOMBRE_ELEMENT*TAILLE_ELEMENT;
 
 const unsigned int MIN_NB_BILLE = 1000;
 const unsigned int MAX_NB_BILLE = 30000;
@@ -46,19 +48,23 @@ int main() {
 	unsigned int nombreBille = 0;
 	unsigned int nombreEtage = 0;
 
+   //Allocation de deux zone mémoire qui servira a stocké les entrées utilisateur
+	char *tamponChaineEntree = (char *) calloc(NOMBRE_ELEMENT,TAILLE_ELEMENT);
+	char *tamponEntierEntree = (char *) calloc(NOMBRE_ELEMENT,TAILLE_ELEMENT);
 
-
-	char *tamponChaineEntree = (char *) malloc(TAILLE_BUFFER);
-	char *tamponEntierEntree = (char *) malloc(TAILLE_BUFFER);
-
-	char test[4] = "1000";
+   //On vérifie que la mémoire a bien été allouée
+   assert(tamponChaineEntree != NULL);
+   assert(tamponEntierEntree != NULL);
+   //On test que l'entrée utilisateur soit correct
 	do {
 		printf("Entrez le nombre de billes [1000 - 30000] : ");
-
+      //On enregistre l'entré utilisateur en tant que string dans une zone tampon,
+      // on extrait ensuite un entier et on le convertis en string et on le met dans
+      // la seconde zone tampon.
 		scanf("%s", tamponChaineEntree);
 		sscanf(tamponChaineEntree, "%u", &nombreBille);
 		sprintf(tamponEntierEntree, "%u", nombreBille);
-
+      //On vérifie que l'entré est correct
 		if (!testerSaisieNumerique(nombreBille, tamponChaineEntree,tamponEntierEntree,
                                  MIN_NB_BILLE,MAX_NB_BILLE)) {
 			printf("Saisie incorrecte. Veuillez SVP recommencer.\n");
@@ -66,7 +72,7 @@ int main() {
 	} while (!testerSaisieNumerique(nombreBille, tamponEntierEntree,
                                    tamponChaineEntree, MIN_NB_BILLE,
 											  MAX_NB_BILLE));
-
+   //On met à 0 tous les bits des deux zones tampons pour les réutiliser
 	memset(tamponChaineEntree, 0, TAILLE_BUFFER);
 	memset(tamponEntierEntree, 0, TAILLE_BUFFER);
 
@@ -89,6 +95,7 @@ int main() {
 	//libération de la mémoire
 	free(tamponChaineEntree);
 	free(tamponEntierEntree);
+
    tamponChaineEntree = NULL;
    tamponEntierEntree = NULL;
 
