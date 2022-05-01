@@ -101,7 +101,8 @@ int main() {
 	tamponEntierEntree = NULL;
 
 
-	const size_t taille = (nombreEtage + 1) * nombreEtage / 2u;
+	const size_t taille = (nombreEtage + 1) * nombreEtage / 2;
+	printf("%zu", taille);
 	unsigned int *tableau = (unsigned int *) calloc(taille,
 																	sizeof(unsigned int));
 	if (tableau) {
@@ -179,7 +180,7 @@ unsigned tailleChiffre) {
 
 
 unsigned valeurMax(const unsigned *tab, const unsigned rangee, size_t taille) {
-	unsigned indice = taille - rangee - 1;
+	unsigned indice = taille - rangee;
 	unsigned max = *(tab + indice);
 
 	for (size_t k = 0; k < rangee; ++k) {
@@ -196,7 +197,7 @@ max, size_t taille) {
 
 	unsigned *histogramme = (unsigned *) calloc(rangee, sizeof(unsigned));
 	//if(histo)....
-	unsigned indice = taille - rangee - 1;
+	unsigned indice = taille - rangee;
 	for (unsigned i = 0; i < rangee; ++i) {
 		*(histogramme + i) = (unsigned) (TAILLE_HISTO *
 													(double) *(tableau + indice + i) / max);
