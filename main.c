@@ -39,14 +39,14 @@ const char MESSAGE_ENTREE_ETAGES[] = "Entrez le nombre de rangees de compteurs "
 const char CARACTERE_HISTOGRAMME = '*';
 const char CARACTERE_ESPACEMENT = ' ';
 
-const unsigned NOMBRE_ELEMENTS = 512;
+const unsigned NBRE_ELEMENTS = 512;
 const unsigned TAILLE_ELEMENT = sizeof(char);
-const unsigned TAILLE_TAMPON = NOMBRE_ELEMENTS * TAILLE_ELEMENT;
+const unsigned TAILLE_TAMPON = NBRE_ELEMENTS * TAILLE_ELEMENT;
 
-const unsigned MIN_NB_BILLES = 1000;
-const unsigned MAX_NB_BILLES = 30000;
-const unsigned MIN_NB_ETAGES = 10;
-const unsigned MAX_NB_ETAGES = 20;
+const unsigned MIN_NBRE_BILLES = 1000;
+const unsigned MAX_NBRE_BILLES = 30000;
+const unsigned MIN_NBRE_ETAGES = 10;
+const unsigned MAX_NBRE_ETAGES = 20;
 const unsigned TAILLE_MAX_HISTOGRAMME = 15;
 
 
@@ -58,49 +58,51 @@ void saisieUtilisateur(unsigned *valeur, const unsigned min, const unsigned max,
                        const char *messageEntre, const char *messageErreur, char
                        *tamponChaineEntree, char *tamponEntierEntree);
 
-unsigned valeurMax(const unsigned *tab, const unsigned nbreRangees, size_t taille);
+unsigned valeurMax(const unsigned *tab, const unsigned nbreRangees, unsigned taille);
 
 unsigned longueurNumerique(unsigned valeur);
 
-unsigned *plancheGalton(unsigned nombreBilles, unsigned nombreEtages, const size_t
+unsigned *plancheGalton(unsigned nbreBilles, unsigned nbreEtages, const unsigned
 taille);
 
-void afficherPlanche(const unsigned *planche, unsigned nombreEtages,
+void afficherPlanche(const unsigned *planche, unsigned nbreEtages,
                      unsigned tailleColonne);
 
 unsigned *allouerHistogramme(const unsigned *planche, unsigned nbreRangees,
-                             unsigned max, size_t taille);
+                             unsigned max, unsigned taille);
 
 void afficherHistogramme(const unsigned *histogramme, unsigned nbreRangees,
                          unsigned tailleColonne);
 
 int main(void) {
 
-   unsigned nombreBilles = 0;
-   unsigned nombreEtages = 0;
+   unsigned nbreBilles = 0;
+   unsigned nbreEtages = 0;
 
-   // Allocation de deux zones mémoires qui servira à stocker les entrées
-   // utilisateurs
-   char *tamponChaineEntree = (char *) calloc(NOMBRE_ELEMENTS, TAILLE_ELEMENT);
-   char *tamponEntierEntree = (char *) calloc(NOMBRE_ELEMENTS, TAILLE_ELEMENT);
+   /*
+    * Allocation de deux zones mémoires qui servira à stocker les entrées
+    * utilisateurs
+    */
+   char *tamponChaineEntree = (char *) calloc(NBRE_ELEMENTS, TAILLE_ELEMENT);
+   char *tamponEntierEntree = (char *) calloc(NBRE_ELEMENTS, TAILLE_ELEMENT);
 
    // On vérifie que la mémoire a bien été allouée
    assert(tamponChaineEntree != NULL);
    assert(tamponEntierEntree != NULL);
 
    // Saisie du nombre de billes
-   saisieUtilisateur(&nombreBilles, MIN_NB_BILLES, MAX_NB_BILLES,
-                     MESSAGE_ENTREE_BILLES,
-                     MESSAGE_ERREUR, tamponChaineEntree, tamponEntierEntree);
+   saisieUtilisateur(&nbreBilles, MIN_NBRE_BILLES, MAX_NBRE_BILLES,
+					 MESSAGE_ENTREE_BILLES,
+					 MESSAGE_ERREUR, tamponChaineEntree, tamponEntierEntree);
 
    // On met à 0 tous les bits des deux zones tampons pour les réutiliser
    memset(tamponChaineEntree, 0, TAILLE_TAMPON);
    memset(tamponEntierEntree, 0, TAILLE_TAMPON);
 
    // Saisie du nombre d'étages
-   saisieUtilisateur(&nombreEtages, MIN_NB_ETAGES, MAX_NB_ETAGES,
-                     MESSAGE_ENTREE_ETAGES,
-                     MESSAGE_ERREUR, tamponChaineEntree, tamponEntierEntree);
+   saisieUtilisateur(&nbreEtages, MIN_NBRE_ETAGES, MAX_NBRE_ETAGES,
+					 MESSAGE_ENTREE_ETAGES,
+					 MESSAGE_ERREUR, tamponChaineEntree, tamponEntierEntree);
 
    // Libération de la mémoire
    free(tamponChaineEntree);
@@ -109,22 +111,22 @@ int main(void) {
    tamponEntierEntree = NULL;
 
 
-   size_t taille = (nombreEtages + 1) * nombreEtages / 2;
+   unsigned taille = (nbreEtages + 1) * nbreEtages / 2;
 
-   srand(time(NULL));
+   srand((unsigned) time(NULL));
 
    //Nombre de digits + 1 caractère pour l'espace
-   unsigned tailleColonne = longueurNumerique(nombreBilles) + 1;
+   unsigned tailleColonne = longueurNumerique(nbreBilles) + 1;
 
    // Allocation, puis simulation de la planche de Galton
-   unsigned *planche = plancheGalton(nombreBilles, nombreEtages, taille);
-   afficherPlanche(planche, nombreEtages, tailleColonne);
+   unsigned *planche = plancheGalton(nbreBilles, nbreEtages, taille);
+   afficherPlanche(planche, nbreEtages, tailleColonne);
 
 
-   unsigned *histogramme = allouerHistogramme(planche, nombreEtages,
-                                              valeurMax(planche, nombreEtages,
-                                                        taille), taille);
-   afficherHistogramme(histogramme, nombreEtages, tailleColonne);
+   unsigned *histogramme = allouerHistogramme(planche, nbreEtages,
+											  valeurMax(planche, nbreEtages,
+														taille), taille);
+   afficherHistogramme(histogramme, nbreEtages, tailleColonne);
 
    free(histogramme);
    histogramme = NULL;
@@ -169,7 +171,7 @@ void saisieUtilisateur(unsigned *valeur, const unsigned min, const unsigned max,
 }
 
 // But : Récupère la plus grande valeur présente dans la dernière ligne de la planche
-unsigned valeurMax(const unsigned *tab, const unsigned nbreRangees, const size_t
+unsigned valeurMax(const unsigned *tab, const unsigned nbreRangees, const unsigned
 taille) {
 
    assert(tab != NULL);
@@ -198,7 +200,7 @@ unsigned longueurNumerique(unsigned valeur) {
    return i;
 }
 
-unsigned *plancheGalton(unsigned nombreBilles, unsigned nombreEtages, const size_t
+unsigned *plancheGalton(unsigned nbreBilles, unsigned nbreEtages, const unsigned
 taille) {
 
    assert(taille > 0);
@@ -207,11 +209,11 @@ taille) {
                                            sizeof(unsigned));
    assert(planche != NULL);
 
-   planche[0] = nombreBilles;
-   size_t indice = 0;
+   planche[0] = nbreBilles;
+   unsigned indice = 0;
 
-   for (unsigned i = 0; i < nombreBilles; ++i) {
-      for (unsigned j = 1; j < nombreEtages; ++j) {
+   for (unsigned i = 0; i < nbreBilles; ++i) {
+      for (unsigned j = 1; j < nbreEtages; ++j) {
          //50% de chance de sortir un 1 ou 0
          indice += j + (rand() & 1);
          planche[indice] += 1;
@@ -222,7 +224,7 @@ taille) {
    return planche;
 }
 
-void afficherPlanche(const unsigned *planche, const unsigned nombreEtages, const
+void afficherPlanche(const unsigned *planche, const unsigned nbreEtages, const
 unsigned tailleColonne) {
 
    assert(planche != NULL);
@@ -231,12 +233,12 @@ unsigned tailleColonne) {
    unsigned decrement = tailleColonne / 2;
 
    //Espaces à afficher à chaque étage
-   unsigned nbreEspaces = tailleColonne * nombreEtages / 2 - (decrement + tailleColonne
-                                                                          % 2);
+   unsigned nbreEspaces = tailleColonne * nbreEtages / 2 - (decrement + tailleColonne
+																		% 2);
    unsigned indice = 0;
 
    printf("\n");
-   for (unsigned i = 0; i < nombreEtages; ++i) {
+   for (unsigned i = 0; i < nbreEtages; ++i) {
 
       printf("%*s", nbreEspaces, "");
       indice += i;
@@ -260,7 +262,7 @@ unsigned tailleColonne) {
  *       l'histogramme
  */
 unsigned *allouerHistogramme(const unsigned *planche, const unsigned nbreRangees,
-                             const unsigned max, const size_t taille) {
+                             const unsigned max, const unsigned taille) {
 
    assert(planche != NULL);
 
