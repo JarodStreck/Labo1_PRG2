@@ -15,7 +15,7 @@
                   ci-dessus.
 
  Remarque(s)    : - Toutes les saisies doivent être contrôlées et l'utilisateur sera
-                    réinvité à refaire sa saisie.
+                    invité à refaire sa saisie.
                   - Le programme contient 2 affichages : L'affichage des valeurs
                     des divers compteurs et l'affichage d'un histogramme
                     correspondant à la distribution finale des billes dans les
@@ -154,8 +154,9 @@ void saisieUtilisateur(unsigned *valeur, const unsigned min, const unsigned max,
    do {
       printf("%s", messageEntre);
       scanf("%s", tamponChaineEntree);
-
+      //Récupération de l'entier
       sscanf(tamponChaineEntree, "%u", valeur);
+      //Transformation de l'entier en string
       sprintf(tamponEntierEntree, "%u", *valeur);
 
       if (!testerSaisieNumerique(*valeur, tamponChaineEntree, tamponEntierEntree,
