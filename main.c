@@ -58,12 +58,12 @@ void saisieUtilisateur(unsigned* valeur, unsigned min, unsigned max,
 					   const char* messageEntre, const char* messageErreur, char
 					   * tamponChaineEntree, char* tamponEntierEntree);
 
-unsigned valeurMax(const unsigned* tab, unsigned nbreRangees, unsigned taille);
+unsigned valeurMax(const unsigned* planche, unsigned nbreRangees, unsigned taille);
 
 unsigned longueurNumerique(unsigned valeur);
 
 unsigned* plancheGalton(unsigned nbreBilles, unsigned nbreEtages, unsigned
-taille);
+						taille);
 
 void afficherPlanche(const unsigned* planche, unsigned nbreEtages,
 					 unsigned tailleColonne);
@@ -173,16 +173,16 @@ void saisieUtilisateur(unsigned* valeur, unsigned min, unsigned max,
 }
 
 // But : Récupère la plus grande valeur présente dans la dernière ligne de la planche
-unsigned valeurMax(const unsigned* tab, unsigned nbreRangees, unsigned taille) {
+unsigned valeurMax(const unsigned* planche, unsigned nbreRangees, unsigned taille) {
 
-   assert(tab != NULL);
+   assert(planche != NULL);
 
    unsigned indice = taille - nbreRangees;
-   unsigned max = *(tab + indice);
+   unsigned max = *(planche + indice);
 
    for (unsigned i = 0; i < nbreRangees; ++i) {
-	  if (*(tab + indice + i) > max) {
-		 max = *(tab + indice + i);
+	  if (*(planche + indice + i) > max) {
+		 max = *(planche + indice + i);
 	  }
    }
 
@@ -234,8 +234,8 @@ void afficherPlanche(const unsigned* planche, unsigned nbreEtages, unsigned
    unsigned decrement = tailleColonne / 2;
 
    //Espaces à afficher à chaque étage
-   unsigned nbreEspaces = (tailleColonne + (tailleColonne % 2 && nbreEtages % 2)) *
-	  nbreEtages / 2 - (decrement + tailleColonne % 2);
+   unsigned nbreEspaces = tailleColonne * nbreEtages / 2 - (decrement +
+	        tailleColonne % 2) + (tailleColonne % 2 && nbreEtages % 2);
    unsigned indice = 0;
 
    printf("\n");
@@ -274,7 +274,7 @@ unsigned* allouerHistogramme(const unsigned* planche, unsigned nbreRangees,
    unsigned indice = taille - nbreRangees;
    for (unsigned i = 0; i < nbreRangees; ++i) {
 	  *(histogramme + i) = (unsigned) round(TAILLE_MAX_HISTOGRAMME *
-											(double) *(planche + indice + i) / max);
+						(double) *(planche + indice + i) / max);
    }
 
    return histogramme;
