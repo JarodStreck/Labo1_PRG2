@@ -24,13 +24,13 @@
  Compilateur    : Mingw-w64 gcc 11.2.0
  -----------------------------------------------------------------------------------
 */
+#include <assert.h>
+#include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
 #include <time.h>
-#include <assert.h>
-#include <math.h>
 
 const char MESSAGE_ERREUR[] = "Saisie incorrecte. Veuillez SVP recommencer.";
 const char MESSAGE_ENTREE_BILLES[] = "Entrez le nombre de billes [1000 - 30000] : ";
@@ -76,6 +76,8 @@ void afficherHistogramme(const unsigned* histogramme, unsigned nbreRangees,
 
 int main(void) {
 
+	srand((unsigned) time(NULL));
+
    unsigned nbreBilles = 0;
    unsigned nbreEtages = 0;
 
@@ -115,7 +117,7 @@ int main(void) {
 
    srand((unsigned) time(NULL));
 
-   //Nombre de digits + 1 caractère pour l'espace
+   // Nombre de digits + 1 caractère pour l'espace
    unsigned tailleColonne = longueurNumerique(nbreBilles) + 1;
 
    // Allocation, puis simulation de la planche de Galton
@@ -128,10 +130,10 @@ int main(void) {
 														taille), taille);
    afficherHistogramme(histogramme, nbreEtages, tailleColonne);
 
+	// Libération de la mémoire
    free(histogramme);
-   histogramme = NULL;
-
    free(planche);
+	histogramme = NULL;
    planche = NULL;
 
    return EXIT_SUCCESS;
@@ -199,6 +201,7 @@ unsigned longueurNumerique(unsigned valeur) {
 	  valeur /= 10;
 	  i++;
    }
+
    return i;
 }
 
