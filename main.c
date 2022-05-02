@@ -202,6 +202,10 @@ unsigned longueurNumerique(unsigned valeur) {
    return i;
 }
 
+/*
+ * But : Générer une planche pour l'expérience de Galton selon son nombre de
+ * 		rangées et de billes
+ */
 unsigned* plancheGalton(unsigned nbreBilles, unsigned nbreEtages, unsigned taille) {
 
    assert(taille > 0);
@@ -210,14 +214,16 @@ unsigned* plancheGalton(unsigned nbreBilles, unsigned nbreEtages, unsigned taill
 										  sizeof(unsigned));
    assert(planche != NULL);
 
-   planche[0] = nbreBilles;
+   *(planche) = nbreBilles;
    unsigned indice = 0;
 
    for (unsigned i = 0; i < nbreBilles; ++i) {
+		// Calcule de l'indice/parcourt de chaque bille sur la planche de Galton
 	  for (unsigned j = 1; j < nbreEtages; ++j) {
-		 //50% de chance de sortir un 1 ou 0
+		 // 50% de chance de sortir un 1 ou un 0 comme incrément pour l'indice
 		 indice += j + (rand() & 1);
-		 planche[indice] += 1;
+		 // Incrémente le compteur à l'indice donné
+		 *(planche + indice) += 1;
 	  }
 	  indice = 0;
    }
@@ -230,10 +236,10 @@ void afficherPlanche(const unsigned* planche, unsigned nbreEtages, unsigned
 
    assert(planche != NULL);
 
-   //Nombre d'espaces à retirer à chaque étage
+   // Nombre d'espaces à retirer à chaque étage
    unsigned decrement = tailleColonne / 2;
 
-   //Espaces à afficher à chaque étage
+   // Espaces à afficher à chaque étage
    unsigned nbreEspaces = tailleColonne * nbreEtages / 2 - (decrement +
 	        tailleColonne % 2) + (tailleColonne % 2 && nbreEtages % 2);
    unsigned indice = 0;
