@@ -115,8 +115,6 @@ int main(void) {
 
    unsigned taille = (nbreEtages + 1) * nbreEtages / 2;
 
-   srand((unsigned) time(NULL));
-
    // Nombre de digits + 1 caractère pour l'espace
    unsigned tailleColonne = longueurNumerique(nbreBilles) + 1;
 
