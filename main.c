@@ -50,8 +50,8 @@ const unsigned MAX_NBRE_ETAGES = 20;
 const unsigned TAILLE_MAX_HISTOGRAMME = 15;
 
 
-bool testerSaisieNumerique(unsigned valeurATester, const char* tampon1,
-						   const char* tampon2, unsigned borneMin,
+bool testerSaisieNumerique(unsigned valeurATester, const char* tamponChaine,
+						   const char* tamponEntier, unsigned borneMin,
 						   unsigned borneMax);
 
 void saisieUtilisateur(unsigned* valeur, unsigned min, unsigned max,
@@ -138,12 +138,12 @@ int main(void) {
 }
 
 // But : Tester qu'une saisie utilisateur est bien une valeurATester numérique valide
-bool testerSaisieNumerique(unsigned valeurATester, const char* tampon1, const
-char* tampon2, unsigned borneMin, unsigned
+bool testerSaisieNumerique(unsigned valeurATester, const char* tamponChaine, const
+char* tamponEntier, unsigned borneMin, unsigned
 						   borneMax) {
 
    if (valeurATester > borneMax || valeurATester < borneMin ||
-	   strcmp(tampon1, tampon2) != 0) {
+	   strcmp(tamponEntier, tamponChaine) != 0) {
 	  return false;
    }
 
